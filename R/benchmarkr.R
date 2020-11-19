@@ -42,29 +42,43 @@ mcmc_sampling <- function(times, n) {
 }
 benchmark <- function(times = 100, mvn_n = 100, lm_n = 1000, lm_p = 50,
                       density_n = 100000, mcmc_n = 1000) {
+  defaults <- formals(benchmark)
+  defaults_changed_vec <- c(
+    mvn_generation = defaults$mvn_n != mvn_n,
+    lm_estimation = (defaults$lm_n != lm_n) || (defaults$lm_p != lm_p),
+    density_evaluation = defaults$density_n != density_n,
+    mcmc_sampling = defaults$mcmc_n != mcmc_n
+  )
+
   mb_mvn_generation <- mvn_generation(times, n = mvn_n)
   mb_lm_estimation <- lm_estimation(times, n = lm_n, p = lm_p)
   mb_density_evaluation <- density_evaluation(times, n = density_n)
   mb_mcmc_sampling <- mcmc_sampling(times, n = mcmc_n)
 
   mb_list <- list(
-    mvn_generation = mb_mvn_generation,
-    lm_estimation = mb_lm_estimation,
-    density_evaluation = mb_density_evaluation,
-    mcmc_sampling = mb_mcmc_sampling
+    `MVN Generation` = mb_mvn_generation,
+    `LM Estimation` = mb_lm_estimation,
+    `Density Evaluation` = mb_density_evaluation,
+    `MCMC Sampling` = mb_mcmc_sampling
   )
   mb_vec <- sapply(mb_list, function(x) median(x$time))
-  class(mb_vec) <- "benchmarkr"
-  return(mb_vec)
+  mb_df <- data.frame(
+    step = names(mb_vec),
+    time = mb_vec,
+    defaults_changed = defaults_changed_vec
+    )
+  rownames(mb_df) <- NULL
+  class(mb_df) <- c("benchmarkr", "data.frame")
+  return(mb_df)
 }
 
 
 
 comparisons <- function() {
   comp1 <- data.frame(
-    step = c("mvn_generation", "lm_estimation", "density_evaluation", "mcmc_sampling"),
+    step = c("MVN Generation", "LM Estimation", "Density Evaluation", "MCMC Sampling"),
     time = c(2564724, 4219191, 2319384, 3855403),
-    computer = rep("Sebastian's Macbook Pro (2017)")
+    computer = rep("MBP 2017, 2.5 GHz i7, 8 Gb")
   )
 
   # Add more here
@@ -73,10 +87,15 @@ comparisons <- function() {
   return(comp)
 }
 
+print.benchmarkr <- function(x, ...) {
+  print.data.frame(x)
+}
 
 plot.benchmarkr <- function(x, ...) {
   comp <- comparisons()
-  current <- data.frame(step = names(x), time = c(x), computer = "Current")
+  current <- data.frame(step = x$step, time = x$time, computer = "Current")
+  unchanged_steps <- x$step[!x$defaults_changed]
+  comp <- comp[comp$step %in% unchanged_steps, ]
   plot_df <- rbind(comp, current)
   p <- ggplot(plot_df, aes(x = step, y = time/1e6, fill = computer)) +
     geom_bar(position="dodge", stat="identity") +
@@ -84,11 +103,15 @@ plot.benchmarkr <- function(x, ...) {
     labs(y = "Milliseconds",
          x = "Benchmarking step",
          fill = "Computer") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5))
+    theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.5)) +
+    scale_fill_brewer(palette="Dark2")
   return(p)
 }
 
-# Example
-#bm <- benchmark()
+# Example with defaults
+bm <- benchmark()
+plot(bm)
 
-#plot_fun(bm)
+# If we change a default, comparison is removed
+bm <- benchmark(mvn_n = 200)
+plot(bm)
