@@ -77,7 +77,7 @@ benchmark <- function(times = 100, mvn_n = 100, lm_n = 1000, lm_p = 50,
 comparisons <- function() {
   comp1 <- data.frame(
     step = c("MVN Generation", "LM Estimation", "Density Evaluation", "MCMC Sampling"),
-    time = c(2564724, 4219191, 2319384, 3855403),
+    time = c(2603802, 4084801, 2360808, 3851763),
     computer = rep("MBP 2017, 2.5 GHz i7, 8 Gb")
   )
 
@@ -113,5 +113,5 @@ bm <- benchmark()
 plot(bm)
 
 # If we change a default, comparison is removed
-bm <- benchmark(mvn_n = 200)
+bm <- benchmark(times = 1000)
 plot(bm)
