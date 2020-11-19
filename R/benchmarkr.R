@@ -87,7 +87,7 @@ comparisons <- function() {
   )
   comp3 <- data.frame(
     step = c("MVN Generation", "LM Estimation", "Density Evaluation", "MCMC Sampling"),
-    time = c(2609300, 3808750, 8395850, 4659800),
+    time = c(2775700, 4444700, 8509400, 4777900),
     computer = rep("WIN 2019, 2.6 GHz i7, 8 Gb")
   )
 
