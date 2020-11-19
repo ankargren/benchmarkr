@@ -77,13 +77,23 @@ benchmark <- function(times = 100, mvn_n = 100, lm_n = 1000, lm_p = 50,
 comparisons <- function() {
   comp1 <- data.frame(
     step = c("MVN Generation", "LM Estimation", "Density Evaluation", "MCMC Sampling"),
-    time = c(2603802, 4084801, 2360808, 3851763),
+    time = c(1685600, 2350400, 2360808, 3851763),
     computer = rep("MBP 2017, 2.5 GHz i7, 8 Gb")
+  )
+  comp2 <- data.frame(
+    step = c("MVN Generation", "LM Estimation", "Density Evaluation", "MCMC Sampling"),
+    time = c(2603802, 4084801, 5592950, 2912950),
+    computer = rep("WIN 2020, 3.1 GHz i9, 32 Gb")
+  )
+  comp3 <- data.frame(
+    step = c("MVN Generation", "LM Estimation", "Density Evaluation", "MCMC Sampling"),
+    time = c(2609300, 3808750, 8395850, 4659800),
+    computer = rep("WIN 2019, 2.6 GHz i7, 8 Gb")
   )
 
   # Add more here
 
-  comp <- rbind(comp1)
+  comp <- rbind(comp1, comp2, comp3)
   return(comp)
 }
 
